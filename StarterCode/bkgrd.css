@@ -1,0 +1,28 @@
+body, html {
+  height: 100%;
+}
+
+.bg { 
+    background-image: src='../images/Navelgazing.jpg';
+
+   height: 100%; 
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    /* overflow: hidden; */
+}
+
+.stay {
+    position: fixed;
+}
+
+.pad{
+    margin-top: 50px;
+}
+
+.vh {
+
+    min-height: 100vh;
+}
