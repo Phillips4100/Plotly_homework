@@ -32,16 +32,16 @@ function init() {
         });
 
     //    display the data and the plots to the page
-        getBar(data.names[0]);
+        getPlots(data.names[0]);
         getDemo(data.names[0]);
     });
 }
 
 init();
 
-function getBar(id) {
-    d3.json("samples.json").then ((sampledata) =>{
-        var samples = sampledata.samples;
+function getPlots(id) {
+    d3.json("samples.json").then ((filter) =>{
+        var samples = filter.samples;
         // console.log(samples)
         var filtered = samples.filter(s => s.id.toString() === id)[0];
         // console.log(filtered)
@@ -51,6 +51,9 @@ function getBar(id) {
         // get top 10 otu ids and reversing for the plot OTU. 
         var top_ids = ( filtered.otu_ids.slice(0, 10)).reverse();
         var otuIds = top_ids.map(d => "otu " + d);
+        // var result = metadata.filter(meta => meta.id.toString() === id)[0];
+        // demographicInfo.html("");
+        // var wfreq = result.wfreq
         // console.log(`otu_ids: ${otuIds}`)
         // console.log(`otu_labels: ${labels}`)
 
@@ -62,15 +65,50 @@ function getBar(id) {
             text: labels,
         }];
 
-        var layout = {
-            title: "Top 10 OTUs",
-        }        
-
-        Plotly.newPlot('bar', trace1, layout);
-
         var trace2 = [{
+            x: filtered.otu_ids.slice(0, 10),
+            y: filtered.sample_values.slice(0,10),
+            mode: "markers",
+            marker: {
+                size: filtered.sample_values.slice(0,10),
+                color: filtered.otu_ids.slice(0, 10)
+            },
+            text:  labels,
+        }];
+        // console.log(samples.filter(s => s.id === id)[0]);
 
-        }]
+        // var Trace3 = [
+        //     {
+        //       type: "indicator",
+        //       mode: "gauge+number+delta",
+        //       value: 420,
+        //       title: { text: "Speed", font: { size: 24 } },
+        //       delta: { reference: 400, increasing: { color: "RebeccaPurple" } },
+        //       gauge: {
+        //         axis: { range: [null, 500], tickwidth: 1, tickcolor: "darkblue" },
+        //         bar: { color: "darkblue" },
+        //         bgcolor: "white",
+        //         borderwidth: 2,
+        //         bordercolor: "gray",
+        //         steps: [
+        //           { range: [0, 250], color: "cyan" },
+        //           { range: [250, 400], color: "royalblue" }
+        //         ],
+        //         threshold: {
+        //           line: { color: "red", width: 4 },
+        //           thickness: 0.75,
+        //           value: 490
+        //         }
+        //       }
+        //     }
+        //   ];
+
+        var layout1 = {
+            title: "Top 10 OTUs",
+        }
+
+        Plotly.newPlot('bar', trace1, layout1);
+        Plotly.newPlot('bubble', trace2);
     });
 };
 
@@ -83,14 +121,87 @@ function getDemo(id) {
         var demographicInfo = d3.select("#sample-metadata");
         var result = metadata.filter(meta => meta.id.toString() === id)[0];
         demographicInfo.html("");
+        var wfreq = result.wfreq
         Object.entries(result).forEach((key) => {   
-            demographicInfo.append("h5").text(key[0].toUpperCase() + ": " + key[1] + "\n");    
+            demographicInfo.append("h5").text(key[0].toUpperCase() + ": " + key[1] + "\n");
+
+        console.log(wfreq);
+
+        // Guage
+        //use trigonometry to calculate meter point
+        var level = (wfreq/9) * 180;
+        var degrees = 180 - level, radius = .5;
+        var radians = degrees * Math.PI / 180;
+        var x = radius * Math.cos(radians);
+        var y = radius * Math.sin(radians);
+
+        //Path
+        var mainPath = 'M -.0 -0.025 L .0 0.025 L ',
+            pathX = String(x),
+            space = ' ',
+            pathY = String(y),
+            pathEnd = ' Z';
+        var path = mainPath.concat(pathX, space, pathY, pathEnd);
+
+        
+        var trace3 = [{ type: 'scatter',
+        x: [0], y:[0],
+            marker: {size: 18, color:'850000'},
+            showlegend: false,
+            name: 'Frequency',
+            text: wfreq*20,
+            hoverinfo: 'name+:+text'},
+        { values: [50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50],
+        rotation: 90,
+        text: ['8-9', '7-8', '6-7', '5-6', '4-5', '3-4', '2-3', '1-2', '0-1', ''],
+        textinfo: 'text',
+        textposition:'inside',
+        marker: {
+            colors: ['rgba(119, 170, 221, .5)', 
+                'rgba(153, 221, 255, .5)', 'rgba(68, 187, 153, .5)', 
+                'rgba(187, 204, 51, .5)', 'rgba(170, 170, 0, .5)', 
+                'rgba(238, 221, 136, .5)', 'rgba(238, 136, 102, .5)', 
+                'rgba(255, 170, 187, .5)', 'rgba(221, 221, 221, .5)', 
+                'rgba(255, 255, 255, 0)']},
+        labels: ['8-9', '7-8', '6-7', '5-6', '4-5', '3-4', '2-3', '1-2', '0-1', ''],
+        hoverinfo: 'label',
+        hole: .5,
+        type: 'pie',
+        showlegend: false
+        }];
+
+        var layout2 = {
+            shapes:[{
+                type: 'path',
+                path: path,
+                fillcolor: '850000',
+                line: {
+                    color: '850000'
+                }
+            }],
+        title: '<b>Belly Button Washing Frequency</b> <br> Scrubs per Week',
+        // height: 400,
+        // width: 400,
+        xaxis: {
+            zeroline:false, 
+            showticklabels:false,
+            showgrid: false, 
+            range: [-1, 1]
+        },
+        yaxis: {
+            zeroline:false, 
+            showticklabels:false,
+            showgrid: false, 
+            range: [-1, 1]}
+        };
+        // var GAUGE = document.getElementById('gauge');
+        Plotly.newPlot("gauge", trace3, layout2);
         });
     });
 }
 
 function optionChanged(id) {
-    getBar(id);
+    getPlots(id);
     getDemo(id);
 }
 
@@ -104,24 +215,3 @@ function updatePlotly() {
   // Assign the value of the dropdown menu option to a variable
   var dataset = dropdownMenu.property("value");
 }
-//   // Initialize x and y arrays
-//   var x = [];
-//   var y = [];
-
-//   if (dataset === 'dataset1') {
-//     x = [1, 2, 3, 4, 5];
-//     y = [1, 2, 4, 8, 16];
-//   }
-
-//   if (dataset === 'dataset2') {
-//     x = [10, 20, 30, 40, 50];
-//     y = [1, 10, 100, 1000, 10000];
-//   }
-
-//   // Note the extra brackets around 'x' and 'y'
-//   Plotly.restyle("plot", "x", [x]);
-//   Plotly.restyle("plot", "y", [y]);
-// }
-
-// getBar();
-// )};
