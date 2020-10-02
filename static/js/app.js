@@ -1,26 +1,4 @@
 
-// var data = d3.json("samples.json")
-//     //  Create the Traces
-// var trace1 = {
-//     x: data.sample_values,
-//     y: data.otuIdss,
-//     type: "bar",
-//     name: "top 10 OTUs found",
-// }
-
-// var ids = data.samples[0].otuIdss;
-
-// // console.log(data);
-// console.log(ids);
-
-// function filterIds() {
-//     return samples[0].id = 941;
-//   }
-// console.log(filterIds())
-// var sample = 940
-// data = 'samples.json';
-// names = d3.json(data.samples);
-// console.log(names);
 
 function init() {
     // select dropdown menu read data and append to dropdown list
@@ -51,12 +29,8 @@ function getPlots(id) {
         // get top 10 otu ids and reversing for the plot OTU. 
         var top_ids = ( filtered.otu_ids.slice(0, 10)).reverse();
         var otuIds = top_ids.map(d => "otu " + d);
-        // var result = metadata.filter(meta => meta.id.toString() === id)[0];
-        // demographicInfo.html("");
-        // var wfreq = result.wfreq
-        // console.log(`otu_ids: ${otuIds}`)
-        // console.log(`otu_labels: ${labels}`)
 
+        // build trace for Bar chart
         var trace1 =[{
             type: 'bar',
             orientation: 'h',
@@ -65,6 +39,7 @@ function getPlots(id) {
             text: labels,
         }];
 
+        // Build trace for Bubble graph
         var trace2 = [{
             x: filtered.otu_ids.slice(0, 10),
             y: filtered.sample_values.slice(0,10),
@@ -75,47 +50,23 @@ function getPlots(id) {
             },
             text:  labels,
         }];
-        // console.log(samples.filter(s => s.id === id)[0]);
 
-        // var Trace3 = [
-        //     {
-        //       type: "indicator",
-        //       mode: "gauge+number+delta",
-        //       value: 420,
-        //       title: { text: "Speed", font: { size: 24 } },
-        //       delta: { reference: 400, increasing: { color: "RebeccaPurple" } },
-        //       gauge: {
-        //         axis: { range: [null, 500], tickwidth: 1, tickcolor: "darkblue" },
-        //         bar: { color: "darkblue" },
-        //         bgcolor: "white",
-        //         borderwidth: 2,
-        //         bordercolor: "gray",
-        //         steps: [
-        //           { range: [0, 250], color: "cyan" },
-        //           { range: [250, 400], color: "royalblue" }
-        //         ],
-        //         threshold: {
-        //           line: { color: "red", width: 4 },
-        //           thickness: 0.75,
-        //           value: 490
-        //         }
-        //       }
-        //     }
-        //   ];
-
+        // bar chart layout
         var layout1 = {
             title: "Top 10 OTUs",
+            width: 500
         }
 
+        // Insert Plots
         Plotly.newPlot('bar', trace1, layout1);
         Plotly.newPlot('bubble', trace2);
     });
 };
 
+// Call samples for demographic data, collect washing data to variable
 function getDemo(id) {
     d3.json("samples.json").then((data)=> {
         var metadata = data.metadata;
-        // console.log(metadata)
     
         // select demo panel filter meta data by id and append to list
         var demographicInfo = d3.select("#sample-metadata");
@@ -125,17 +76,15 @@ function getDemo(id) {
         Object.entries(result).forEach((key) => {   
             demographicInfo.append("h5").text(key[0].toUpperCase() + ": " + key[1] + "\n");
 
-        console.log(wfreq);
+        // console.log(wfreq);
 
-        // Guage
-        //use trigonometry to calculate meter point
+        // Guage: define position of guade (0 to 9) by wash frequency
         var level = (wfreq/9) * 180;
         var degrees = 180 - level, radius = .5;
         var radians = degrees * Math.PI / 180;
         var x = radius * Math.cos(radians);
         var y = radius * Math.sin(radians);
 
-        //Path
         var mainPath = 'M -.0 -0.025 L .0 0.025 L ',
             pathX = String(x),
             space = ' ',
@@ -143,13 +92,13 @@ function getDemo(id) {
             pathEnd = ' Z';
         var path = mainPath.concat(pathX, space, pathY, pathEnd);
 
-        
+        // build trace for guage
         var trace3 = [{ type: 'scatter',
         x: [0], y:[0],
             marker: {size: 18, color:'850000'},
             showlegend: false,
             name: 'Frequency',
-            text: wfreq*20,
+            text: wfreq,
             hoverinfo: 'name+:+text'},
         { values: [50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50],
         rotation: 90,
@@ -180,8 +129,6 @@ function getDemo(id) {
                 }
             }],
         title: '<b>Belly Button Washing Frequency</b> <br> Scrubs per Week',
-        // height: 400,
-        // width: 400,
         xaxis: {
             zeroline:false, 
             showticklabels:false,
@@ -194,7 +141,6 @@ function getDemo(id) {
             showgrid: false, 
             range: [-1, 1]}
         };
-        // var GAUGE = document.getElementById('gauge');
         Plotly.newPlot("gauge", trace3, layout2);
         });
     });
@@ -215,3 +161,62 @@ function updatePlotly() {
   // Assign the value of the dropdown menu option to a variable
   var dataset = dropdownMenu.property("value");
 }
+
+// **** Scratch code ****
+
+// var data = d3.json("samples.json")
+//     //  Create the Traces
+// var trace1 = {
+//     x: data.sample_values,
+//     y: data.otuIdss,
+//     type: "bar",
+//     name: "top 10 OTUs found",
+// }
+
+// var ids = data.samples[0].otuIdss;
+
+// // console.log(data);
+// console.log(ids);
+
+// function filterIds() {
+//     return samples[0].id = 941;
+//   }
+// console.log(filterIds())
+// var sample = 940
+// data = 'samples.json';
+// names = d3.json(data.samples);
+// console.log(names);
+
+// console.log(samples.filter(s => s.id === id)[0]);
+
+// var Trace3 = [
+//     {
+//       type: "indicator",
+//       mode: "gauge+number+delta",
+//       value: 420,
+//       title: { text: "Speed", font: { size: 24 } },
+//       delta: { reference: 400, increasing: { color: "RebeccaPurple" } },
+//       gauge: {
+//         axis: { range: [null, 500], tickwidth: 1, tickcolor: "darkblue" },
+//         bar: { color: "darkblue" },
+//         bgcolor: "white",
+//         borderwidth: 2,
+//         bordercolor: "gray",
+//         steps: [
+//           { range: [0, 250], color: "cyan" },
+//           { range: [250, 400], color: "royalblue" }
+//         ],
+//         threshold: {
+//           line: { color: "red", width: 4 },
+//           thickness: 0.75,
+//           value: 490
+//         }
+//       }
+//     }
+//   ];
+
+// var result = metadata.filter(meta => meta.id.toString() === id)[0];
+// demographicInfo.html("");
+// var wfreq = result.wfreq
+// console.log(`otu_ids: ${otuIds}`)
+// console.log(`otu_labels: ${labels}`)
