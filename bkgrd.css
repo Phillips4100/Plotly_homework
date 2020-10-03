@@ -2,17 +2,17 @@ body, html {
   height: 100%;
 }
 
-.bg { 
-    background-image: src='images/germ.jpg';
-
-   height: 100%; 
-
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+.hero {
+    position: relative;
+    height: 550px;
+    padding: 20px;
+    margin: 0;
+    background: black;
+    background-image: url("../images/alien.jpg");
     background-attachment: fixed;
-    /* overflow: hidden; */
-}
+    background-position: bottom center;
+    background-size: cover;
+  }
 
 .stay {
     position: fixed;
